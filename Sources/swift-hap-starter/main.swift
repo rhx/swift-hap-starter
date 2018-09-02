@@ -158,7 +158,7 @@ class HAPDeviceDelegate: DeviceDelegate {
 let delegate = HAPDeviceDelegate()
 device.delegate = delegate
 
-let server = try Server(device: device, port: 0)
+let server = try Server(device: device, port: port)
 server.start()
 
 if alwaysPrintQR || !pinSpecified {
