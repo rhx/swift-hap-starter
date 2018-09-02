@@ -18,7 +18,7 @@ Install libsodium using [Homebrew](https://brew.sh/):
 
 Install the necessary dependencies, e.g. using `apt`:
 ```
-	sudo apt install openssl libssl1.0-dev libsodium-dev
+	sudo apt install openssl libssl1.0-dev libsodium-dev libcurl3-openssl-dev
 ```
 
 ### Build and run using the Swift Package Manager
