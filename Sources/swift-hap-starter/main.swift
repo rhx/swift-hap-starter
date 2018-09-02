@@ -20,7 +20,7 @@ var name = convert(cmd, using: basename)
 var reset = false                   ///< reset and recreate config
 var alwaysPrintQR = false           ///< always display QR code in terminal
 var verbosity = 1                   ///< verbosity level
-var port = 0                        ///< port to listen on (0 = random)
+var listenport = 0                  ///< port to listen on (0 = random)
 var pin = Device.SetupCode.random   ///< start with a random setup code
 var pinSpecified = false            ///< pin was given on the command line
 var vendor = "AVendor"              ///< default vendor
@@ -61,14 +61,10 @@ while let result = get(options: "c:df:h:k:l:m:n:p:qQRs:S:t:v") {
     case "f": version = arg!
 //    case "h": host = arg!
     case "k": kind = AccessoryKind(rawValue: arg!)!
-    case "l": if let p = Int(arg!) {
-        port = p
-    } else { usage() }
+    case "l": if let p = Int(arg!) { listenport = p } else { usage() }
     case "m": vendor = arg!
     case "n": name = arg!
-//    case "p": if let p = Int(arg!) {
-//        outp = p
-//    } else { usage() }
+//    case "p": if let p = Int(arg!) { outp = p } else { usage() }
     case "q": verbosity  = 0
     case "Q": alwaysPrintQR = true
     case "s": pin = .override(arg!) ; pinSpecified = true
@@ -158,7 +154,7 @@ class HAPDeviceDelegate: DeviceDelegate {
 let delegate = HAPDeviceDelegate()
 device.delegate = delegate
 
-let server = try Server(device: device, port: port)
+let server = try Server(device: device, port: listenport)
 server.start()
 
 if alwaysPrintQR || !pinSpecified {
