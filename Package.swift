@@ -1,10 +1,13 @@
-// swift-tools-version:4.1
+// swift-tools-version:5.0
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
 
 let package = Package(
     name: "swift-hap-starter",
+    platforms: [
+        .macOS(.v10_11),
+    ],
     dependencies: [
         .package(url: "https://github.com/Bouke/HAP.git", .branch("master")),
     ],

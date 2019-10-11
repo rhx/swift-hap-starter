@@ -2,7 +2,7 @@
 //  swift-hap-starter
 //
 //  Created by Rene Hexel on 25/11/2017.
-//  Copyright © 2017, 2018 Rene Hexel. All rights reserved.
+//  Copyright © 2017, 2018, 2019 Rene Hexel. All rights reserved.
 //
 import Foundation
 import Dispatch
@@ -20,7 +20,7 @@ var name = convert(cmd, using: basename)
 var reset = false                   ///< reset and recreate config
 var alwaysPrintQR = false           ///< always display QR code in terminal
 var verbosity = 1                   ///< verbosity level
-var listenport = 0                  ///< port to listen on (0 = random)
+var localPort = 0                   ///< port to listen on (0 = random)
 var pin = Device.SetupCode.random   ///< start with a random setup code
 var pinSpecified = false            ///< pin was given on the command line
 var vendor = "AVendor"              ///< default vendor
@@ -61,7 +61,7 @@ while let result = get(options: "c:df:h:k:l:m:n:p:qQRs:S:t:v") {
     case "f": version = arg!
 //    case "h": host = arg!
     case "k": kind = AccessoryKind(rawValue: arg!)!
-    case "l": if let p = Int(arg!) { listenport = p } else { usage() }
+    case "l": if let p = Int(arg!) { localPort = p } else { usage() }
     case "m": vendor = arg!
     case "n": name = arg!
 //    case "p": if let p = Int(arg!) { outp = p } else { usage() }
@@ -108,18 +108,18 @@ signal(SIGINT) { sig in
 var deviceStatus: Bool? {
     get {
         switch accessory {
-        case let light as Accessory.Lightbulb: return light.lightbulb.on.value
-        case let outlet as Accessory.Outlet: return outlet.outlet.on.value
-        case let `switch` as Accessory.Switch: return `switch`.switch.on.value
+        case let light as Accessory.Lightbulb: return light.lightbulb.powerState.value
+        case let outlet as Accessory.Outlet: return outlet.outlet.powerState.value
+        case let `switch` as Accessory.Switch: return `switch`.switch.powerState.value
         default: return nil
         }
     }
     set {
         if verbosity > 0 { print("Setting \(String(describing: newValue))") }
         switch accessory {
-        case let a as Accessory.Lightbulb: a.lightbulb.on.value = newValue
-        case let a as Accessory.Outlet:    a.outlet.on.value    = newValue
-        case let a as Accessory.Switch:    a.switch.on.value    = newValue
+        case let a as Accessory.Lightbulb: a.lightbulb.powerState.value = newValue
+        case let a as Accessory.Outlet:    a.outlet.powerState.value    = newValue
+        case let a as Accessory.Switch:    a.switch.powerState.value    = newValue
         default: return
         }
     }
@@ -154,8 +154,7 @@ class HAPDeviceDelegate: DeviceDelegate {
 let delegate = HAPDeviceDelegate()
 device.delegate = delegate
 
-let server = try Server(device: device, port: listenport)
-server.start()
+let server = try Server(device: device, listenPort: localPort)
 
 if alwaysPrintQR || !pinSpecified {
     let qr = device.setupQRCode.asBigText
@@ -171,5 +170,10 @@ withExtendedLifetime([delegate]) {
 }
 
 if verbosity > 2 { fputs("Stopping server.\n", stderr) }
-server.stop()
+do {
+    try server.stop()
+} catch {
+    fputs("Server returned \(error.localizedDescription)", stderr)
+    exit(EXIT_FAILURE)
+}
 if verbosity > 0 { fputs("Exiting.\n", stderr) }
