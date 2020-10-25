@@ -17,7 +17,6 @@ enum AccessoryKind: String {
 let args = CommandLine.arguments
 let cmd = args[0]                   ///< command name
 var name = convert(cmd, using: basename)
-var reset = false                   ///< reset and recreate config
 var alwaysPrintQR = false           ///< always display QR code in terminal
 var verbosity = 1                   ///< verbosity level
 var localPort = 0                   ///< port to listen on (0 = random)
@@ -44,7 +43,6 @@ fileprivate func usage() -> Never {
 //    print("  -p <port>          broadcast to <port> instead of \(outp)")
     print("  -q                 turn off all non-critical logging output")
     print("  -Q                 print QR code (default unless -S is passed in)")
-    print("  -R                 reset and recreate configuration")
     print("  -s <SECRET_PIN>    HomeKit PIN for authentication [random]")
     print("  -S <serial>        Device serial number [\(serial)]")
     print("  -t <type>          name of the model/type [\(type)]")
